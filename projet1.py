@@ -5,20 +5,20 @@ from main import *
 services = [[0, 'REST', 'WEB UI'], [1, 'REST', 'Registry'], [2, 'REST', 'Authentication'], [3, 'REST', 'ImageProvider'], [4, 'REST', 'Persistence'], [5, 'REST', 'Recommender']]
 
 relations = [
-[0, 1, {"link": "POST /{name}/{location} \n DELETE /{name}/{location}"}],
-[0, 2, {"link": "POST /cart/add/{id} \n POST /cart/remove/{id} \n PUT /cart/{id} \n POST /useractions/login \n POST /useractions/logout \n POST /useractions/placeorder \n POST /useractions/isLoggedIn", }],
-[0, 3, {"link": "POST /getProductImages \n POST /getWebImages"}],
-[0, 4, {"link": "GET /products \n GET /categories \n GET /users \n GET /orders" }],
-[0, 4, {"link": "POST /recommend/{uid}"}],
-[5, 4, {"link": "GET /orders \n GET /ordersitems"}],
-[2, 4, {"link": "POST /products \n POST /orders \n POST /ordersitems"}],
-[3, 4, {"link": "GET /generatedb \n /GET products \n GET/categories"}]
+[0, 1, {"link": ["POST /{name}/{location} ", " DELETE /{name}/{location}"]}],
+[0, 2, {"link": ["POST /cart/add/{id} ", " POST /cart/remove/{id} ", " PUT /cart/{id} ", " POST /useractions/login ", " POST /useractions/logout ", " POST /useractions/placeorder ", " POST /useractions/isLoggedIn"] }],
+[0, 3, {"link": ["POST /getProductImages ", " POST /getWebImages"]}],
+[0, 4, {"link": ["GET /products ", " GET /categories ", " GET /users ", " GET /orders"] }],
+[0, 5, {"link": ["POST /recommend/{uid}"]}],
+[5, 4, {"link": ["GET /orders ", " GET /ordersitems"]}],
+[2, 4, {"link": ["POST /products ", " POST /orders ", " POST /ordersitems"]}],
+[3, 4, {"link": ["GET /generatedb ", " /GET products ", " GET/categories"]}]
 ]
 
-G = nx.Graph()
+teastore = createArchi("Teastore")
 
-createNode(G, services)
+createServices(teastore, services)
 
-createEdge(G, relations)
+createRelations(teastore, relations)
 
-drawGraph(G)
+drawGraph(teastore)
