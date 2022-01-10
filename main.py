@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from pprint import pprint
+import csv
 
 class Archi:
     services = []
@@ -43,6 +44,22 @@ class Archi:
             tb = [rl.source.id, rl.dest.id, rl.traffic]
             tab.append(tb)
         return tab
+
+    #Fonction pour exporter les données de l'architecture sous forme de csv
+    def toCSV(self):
+
+        tab = []
+        for rl in self.relations:
+            tb = [rl.source.summary, rl.dest.summary, rl.traffic['link']]
+            tab.append(tb)
+
+        with open('archi'+self.name+'.csv', mode='w') as archi_file:
+            archi_writer = csv.writer(archi_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            archi_writer.writerow(['Source', 'Destination', 'Trafic'])
+            for tb in tab:
+                archi_writer.writerow(tb)
+
+
 
 class Service:
     def __init__(self, id, type, summary):
@@ -106,11 +123,11 @@ def createNode(G, services):
 def createEdge(G, relations):
     G.add_edges_from(relations)
 
-#On va faire une grosse fonction draw qui va prendre l'architecture en paramètre puis creer les nodes, les edges et les autres
+#Fonction qui permet de dessiner le graphe avec l'architecture en paramètres
 def drawGraph(architecture):
 
     #Creation du graphe
-    G = nx.Graph()
+    G = nx.DiGraph()
     #Creation des noeuds
     createNode(G, architecture.getServicesTab())
     #Creation des relations entre les noeuds
@@ -119,11 +136,11 @@ def drawGraph(architecture):
     nodes_labels = nx.get_node_attributes(G, 'service')
     edges_labels = nx.get_edge_attributes(G, 'link')
 
-    pos = nx.spring_layout(G)
+    pos = nx.spring_layout(G, k=10)
     fig= plt.figure()
     ax=fig.add_axes([0,0,1,1])
 
-    nx.draw_networkx(G, pos, labels=nodes_labels, with_labels=True, node_size=5000)
-    nx.draw_networkx_edge_labels(G, pos, label_pos=0.5, font_size=8, edge_labels=edges_labels)
+    nx.draw_networkx(G, pos, labels=nodes_labels, with_labels=True, font_size=10, node_size=5000, connectionstyle='arc3, rad = 0.1')
+    nx.draw_networkx_edge_labels(G, pos, label_pos=0.6, edge_labels=edges_labels, font_size=8)
 
     plt.show()

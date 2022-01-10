@@ -21,4 +21,6 @@ createServices(teastore, services)
 
 createRelations(teastore, relations)
 
+teastore.toCSV()
+
 drawGraph(teastore)
