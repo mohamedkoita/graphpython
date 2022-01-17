@@ -1,146 +1,711 @@
-import networkx as nx
-import matplotlib.pyplot as plt
-from pprint import pprint
-import csv
-
-class Archi:
-    services = []
-    relations = []
-
-    def __init__(self, name):
-        self.name = name
-
-    def setName(self, name):
-        self.name = name
-
-    def addService(self, service):
-        self.services.append(service)
-        service.addArchi(self)
-
-    def addRelation(self, relation):
-        self.relations.append(relation)
-
-    #Retourner les relations sous forme d'objets
-    def getServices(self):
-        return self.services
-
-    #Pour retourner les services sous forme de tableau
-    def getServicesTab(self):
-        tab = []
-        for sv in self.services:
-            tb = [sv.id, sv.type, sv.summary]
-            tab.append(tb)
-        return tab
-
-    #Retourner les relations sous forme d'objets
-    def getRelations(self):
-        return self.relations
-
-    #Pour retouner les relations sous forme de tableau
-    def getRelationsTab(self):
-        tab = []
-        for rl in self.relations:
-            rl.traffic['link'] = '\n'.join(rl.traffic['link'])
-            tb = [rl.source.id, rl.dest.id, rl.traffic]
-            tab.append(tb)
-        return tab
-
-    #Fonction pour exporter les données de l'architecture sous forme de csv
-    def toCSV(self):
-
-        tab = []
-        for rl in self.relations:
-            tb = [rl.source.summary, rl.dest.summary, rl.traffic['link']]
-            tab.append(tb)
-
-        with open('archi'+self.name+'.csv', mode='w') as archi_file:
-            archi_writer = csv.writer(archi_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            archi_writer.writerow(['Source', 'Destination', 'Trafic'])
-            for tb in tab:
-                archi_writer.writerow(tb)
+from archi import *
+from archigraph import *
+from examples import projet1
 
 
+print(70 * "#")
+print(20 * " ", "LISTE DES PROJETS", 10 * " ")
+print(30 * " ", "", 15 * " ")
+print(8 * " ", "1 - Teastore")
+print(8 * " ", "2 - Sitewhere")
+print(8 * " ", "3 - Petclinic")
+print(8 * " ", "4 - eShop on containers")
+print(8 * " ", "5 - GoogleCloudPlatform Demo")
+print(8 * " ", "6 - Mspnp microservices implementation")
+print(8 * " ", "7 - Piggymetrics")
+print(8 * " ", "8 - PitStop")
+print(8 * " ", "9 - RobotShop")
+print(8 * " ", "10 - Digota")
+print(8 * " ", "11 - PartsUnlimited mrp microservices")
+print(8 * " ", "12 - Blueprint microservices")
+print(8 * " ", "13 - Microservices Demo")
 
-class Service:
-    def __init__(self, id, type, summary):
-        self.id = id
-        self.type = type
-        self.summary = summary
+print("\n")
+print(70 * "#")
+while True:
+    option = input("Entrer votre choix ou '0' fermer le programme : ")
+    try:
+        option = int(option)
+    except ValueError:
+        # Handle the exception
+        print('Please enter an integer')
 
-    def addType(self, type):
-        self.type = type
+    print(50 * "_")
+    if option == 0:
+        print(50 * "*")
+        print(5 * "*", "FERMETURE DU PROGRAMME", 12 * "*")
+        print(50 * "*")
+        break
+    elif option == 1:
 
-    def addSummary(self, summary):
-        self.summary = summary
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
 
-    def addArchi(self, archi):
-        self.archi = archi
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
 
-class Relation:
-    def __init__(self, source):
-        self.source = source
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
 
-    def addSource(self, source):
-        self.source = addSource
+            elif option == 1:
 
-    def addDest(self, dest):
-        if self.source.archi == dest.archi:
-            self.dest = dest
+                project = createArchi(projet1["name"])
 
-    def addTraffic(self, traffic):
-        self.traffic = traffic
+                createServices(project, projet1["services"])
 
-#Fonctions relatives a la classe aux classes Architecture, Service et Relation
-#Ici on entre le nom de l'architecture pour créer une nouvelle architecture
-def createArchi(name):
-    return Archi(name)
+                createRelations(project, projet1["relations"])
 
-#Ici on entre comme parametres le tableau contenant les services et l'architecture
-def createServices(architecture, services):
-    for svc in services:
-        service = Service(svc[0], svc[1], svc[2])
-        architecture.addService(service)
-        service.addArchi(architecture)
+                project.toCSV()
 
-#Ici on entre le tableau initial contenant les relations et le tableau issus de la fonction createService
-def createRelations(architecture, relations):
-    services = architecture.getServices()
-    for rel in relations:
-        relx = Relation(services[rel[0]])
-        relx.addDest(services[rel[1]])
-        relx.addTraffic(rel[2])
-        architecture.addRelation(relx)
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence1["name"])
+
+                createServices(project, persistence1["services"])
+
+                createRelations(project, persistence1["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
 
 
-#Fonctions relatives aux graphes
-#Fonction permettant de creer les noeuds des graphes
-def createNode(G, services):
-    for svc in services:
-        G.add_node(svc[0], service=svc[2])
 
-#Fonction permettant de creer les noeuds entre les graphes
-#Ici, il faut trouver un moyens de modifier le tableau relations pour que chaque lien s'affiche a la ligne
-def createEdge(G, relations):
-    G.add_edges_from(relations)
+    elif option == 2:
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
 
-#Fonction qui permet de dessiner le graphe avec l'architecture en paramètres
-def drawGraph(architecture):
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
 
-    #Creation du graphe
-    G = nx.DiGraph()
-    #Creation des noeuds
-    createNode(G, architecture.getServicesTab())
-    #Creation des relations entre les noeuds
-    createEdge(G, architecture.getRelationsTab())
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
 
-    nodes_labels = nx.get_node_attributes(G, 'service')
-    edges_labels = nx.get_edge_attributes(G, 'link')
+            elif option == 1:
 
-    pos = nx.spring_layout(G, k=10)
-    fig= plt.figure()
-    ax=fig.add_axes([0,0,1,1])
+                projectx = createArchi(projet2["name"])
 
-    nx.draw_networkx(G, pos, labels=nodes_labels, with_labels=True, font_size=10, node_size=5000, connectionstyle='arc3, rad = 0.1')
-    nx.draw_networkx_edge_labels(G, pos, label_pos=0.6, edge_labels=edges_labels, font_size=8)
+                for svvc in projectx.getServices():
+                    pprint(vars(svvc))
+                    print('----------------------------------------------------------------------------------')
+                    print('----------------------------------------------------------------------------------')
 
-    plt.show()
+                createServices(projectx, projet2["services"])
+
+                createRelations(projectx, projet2["relations"])
+
+                # print(projet2["relations"])
+                projectx.toCSV()
+
+                drawGraph(projectx)
+
+            elif option == 2:
+
+                project = createArchi(persistence2["name"])
+
+                createServices(project, persistence2["services"])
+
+                createRelations(project, persistence2["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 3:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet3["name"])
+
+                createServices(project, projet3["services"])
+
+                createRelations(project, projet3["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence3["name"])
+
+                createServices(project, persistence3["services"])
+
+                createRelations(project, persistence3["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 4:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet4["name"])
+
+                createServices(project, projet4["services"])
+
+                createRelations(project, projet4["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence4["name"])
+
+                createServices(project, persistence4["services"])
+
+                createRelations(project, persistence4["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 5:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet5["name"])
+
+                createServices(project, projet5["services"])
+
+                createRelations(project, projet5["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence5["name"])
+
+                createServices(project, persistence5["services"])
+
+                createRelations(project, persistence5["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 6:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet6["name"])
+
+                createServices(project, projet6["services"])
+
+                createRelations(project, projet6["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence6["name"])
+
+                createServices(project, persistence6["services"])
+
+                createRelations(project, persistence6["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 7:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet7["name"])
+
+                createServices(project, projet7["services"])
+
+                createRelations(project, projet7["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence7["name"])
+
+                createServices(project, persistence7["services"])
+
+                createRelations(project, persistence7["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 8:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet8["name"])
+
+                createServices(project, projet8["services"])
+
+                createRelations(project, projet8["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence8["name"])
+
+                createServices(project, persistence8["services"])
+
+                createRelations(project, persistence8["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 9:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet9["name"])
+
+                createServices(project, projet9["services"])
+
+                createRelations(project, projet9["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence9["name"])
+
+                createServices(project, persistence9["services"])
+
+                createRelations(project, persistence9["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 10:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet10["name"])
+
+                createServices(project, projet10["services"])
+
+                createRelations(project, projet10["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence10["name"])
+
+                createServices(project, persistence10["services"])
+
+                createRelations(project, persistence10["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 11:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet11["name"])
+
+                createServices(project, projet11["services"])
+
+                createRelations(project, projet11["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence11["name"])
+
+                createServices(project, persistence11["services"])
+
+                createRelations(project, persistence11["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 12:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet12["name"])
+
+                createServices(project, projet12["services"])
+
+                createRelations(project, projet12["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence12["name"])
+
+                createServices(project, persistence12["services"])
+
+                createRelations(project, persistence12["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    elif option == 13:
+
+        print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
+        print(30 * " ", "", 15 * " ")
+        print(8 * " ", "1 - Architecture du système")
+        print(8 * " ", "2 - Modèle de persistance des données")
+
+        while True:
+            option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
+            try:
+                option = int(option)
+            except ValueError:
+                # Handle the exception
+                print('Please enter an integer')
+
+            if option == 0:
+                print(50 * "*")
+                print(5 * "*", "RETOUR AU MENU PRINCIPAL", 12 * "*")
+                print(50 * "*")
+                break
+
+            elif option == 1:
+
+                project = createArchi(projet13["name"])
+
+                createServices(project, projet13["services"])
+
+                createRelations(project, projet13["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            elif option == 2:
+
+                project = createArchi(persistence13["name"])
+
+                createServices(project, persistence13["services"])
+
+                createRelations(project, persistence13["relations"])
+
+                project.toCSV()
+
+                drawGraph(project)
+
+            else:
+                # selection ivalide, ressaisir
+                print("Selection invalide")
+                print(50 * "#")
+
+
+    else:
+        # selection ivalide, ressaisir
+        print("Selection invalide")
+        print(50 * "#")
