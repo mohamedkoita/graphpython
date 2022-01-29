@@ -1,6 +1,8 @@
 from archi import *
 from archigraph import *
 from examples import projet1
+from metrics import *
+from tabulate import tabulate
 
 
 print(70 * "#")
@@ -42,6 +44,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -81,6 +84,16 @@ while True:
 
                 drawGraph(project)
 
+            elif option == 3:
+
+                project = createArchi(projet1["name"])
+
+                createServices(project, projet1["services"])
+
+                createRelations(project, projet1["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
+
             else:
                 # selection ivalide, ressaisir
                 print("Selection invalide")
@@ -93,6 +106,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -134,9 +148,17 @@ while True:
 
                 createRelations(project, persistence2["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet2["name"])
+
+                createServices(project, projet2["services"])
+
+                createRelations(project, projet2["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -150,6 +172,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -185,9 +208,17 @@ while True:
 
                 createRelations(project, persistence3["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet3["name"])
+
+                createServices(project, projet3["services"])
+
+                createRelations(project, projet3["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -201,6 +232,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -236,9 +268,17 @@ while True:
 
                 createRelations(project, persistence4["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet4["name"])
+
+                createServices(project, projet4["services"])
+
+                createRelations(project, projet4["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -252,6 +292,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -287,9 +328,17 @@ while True:
 
                 createRelations(project, persistence5["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet5["name"])
+
+                createServices(project, projet5["services"])
+
+                createRelations(project, projet5["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -303,6 +352,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -338,9 +388,17 @@ while True:
 
                 createRelations(project, persistence6["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet6["name"])
+
+                createServices(project, projet6["services"])
+
+                createRelations(project, projet6["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -354,6 +412,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -389,9 +448,17 @@ while True:
 
                 createRelations(project, persistence7["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet7["name"])
+
+                createServices(project, projet7["services"])
+
+                createRelations(project, projet7["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -405,6 +472,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -440,9 +508,17 @@ while True:
 
                 createRelations(project, persistence8["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet8["name"])
+
+                createServices(project, projet8["services"])
+
+                createRelations(project, projet8["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -456,6 +532,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -491,9 +568,17 @@ while True:
 
                 createRelations(project, persistence9["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet9["name"])
+
+                createServices(project, projet9["services"])
+
+                createRelations(project, projet9["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -507,6 +592,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -542,9 +628,17 @@ while True:
 
                 createRelations(project, persistence10["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet10["name"])
+
+                createServices(project, projet10["services"])
+
+                createRelations(project, projet10["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -558,6 +652,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -593,9 +688,17 @@ while True:
 
                 createRelations(project, persistence11["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet11["name"])
+
+                createServices(project, projet11["services"])
+
+                createRelations(project, projet11["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -609,6 +712,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -644,9 +748,17 @@ while True:
 
                 createRelations(project, persistence12["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet12["name"])
+
+                createServices(project, projet12["services"])
+
+                createRelations(project, projet12["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
@@ -660,6 +772,7 @@ while True:
         print(30 * " ", "", 15 * " ")
         print(8 * " ", "1 - Architecture du système")
         print(8 * " ", "2 - Modèle de persistance des données")
+        print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
 
         while True:
             option = input("Entrer votre choix ou '0' pour revenir au menu principal: ")
@@ -695,9 +808,17 @@ while True:
 
                 createRelations(project, persistence13["relations"])
 
-                project.toCSV()
-
                 drawGraph(project)
+
+            elif option == 3:
+
+                project = createArchi(projet13["name"])
+
+                createServices(project, projet13["services"])
+
+                createRelations(project, projet13["relations"])
+
+                print(tabulate(fanInFanOut(project), headers = ['Service', 'FanIn', 'FanOut']))
 
             else:
                 # selection ivalide, ressaisir
