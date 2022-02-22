@@ -2,24 +2,38 @@ import csv
 
 class Archi:
     services = []
-    relations = []
+    servicesRelations = []
+    persistences = []
+    persistencesRelations = []
 
     def __init__(self, name):
         self.name = name
         self.services = []
-        self.relations = []
+        self.servicesRelations = []
+        self.persistences = []
+        self.persistencesRelations = []
 
     def setName(self, name):
         self.name = name
+
+    def getName(self):
+        return self.name
 
     def addService(self, service):
         self.services.append(service)
         service.addArchi(self)
 
-    def addRelation(self, relation):
-        self.relations.append(relation)
+    def addServicesRelation(self, relation):
+        self.servicesRelations.append(relation)
 
-    #Retourner les relations sous forme d'objets
+    def addPersistence(self, persistence):
+        self.persistences.append(persistence)
+        persistence.addArchi(self)
+
+    def addPersistenceRelation(self, persistenceRelation):
+        self.persistencesRelations.append(persistenceRelation)
+
+    #Retourner les services sous forme d'objets
     def getServices(self):
         return self.services
 
@@ -31,14 +45,39 @@ class Archi:
             tab.append(tb)
         return tab
 
-    #Retourner les relations sous forme d'objets
-    def getRelations(self):
-        return self.relations
+    #Retourner les formes de persistence sous forme d'objets
+    def getPersistences(self):
+        return self.persistences
 
-    #Pour retouner les relations sous forme de tableau
-    def getRelationsTab(self):
+    #Pour retourner les formes de persistence sous forme de tableau
+    def getPersistencesTab(self):
         tab = []
-        for rl in self.relations:
+        for sv in self.persistences:
+            tb = [sv.id, sv.type, sv.summary]
+            tab.append(tb)
+        return tab
+
+    #Retourner les relations de services sous forme d'objets
+    def getServicesRelations(self):
+        return self.servicesRelations
+
+    #Pour retouner les relations de services sous forme de tableau
+    def getServicesRelationsTab(self):
+        tab = []
+        for rl in self.servicesRelations:
+            rl.traffic['link'] = '\n'.join(rl.traffic['link'])
+            tb = [rl.source.id, rl.dest.id, rl.traffic]
+            tab.append(tb)
+        return tab
+
+    #Retourner les relations de persistences sous forme d'objets
+    def getPersistencesRelations(self):
+        return self.persistencesRelations
+
+    #Pour retouner les relations de persistences sous forme de tableau
+    def getPersistencesRelationsTab(self):
+        tab = []
+        for rl in self.persistencesRelations:
             rl.traffic['link'] = '\n'.join(rl.traffic['link'])
             tb = [rl.source.id, rl.dest.id, rl.traffic]
             tab.append(tb)
@@ -48,7 +87,7 @@ class Archi:
     def toCSV(self):
 
         tab = []
-        for rl in self.relations:
+        for rl in self.servicesRelations:
             tb = [rl.source.summary, rl.dest.summary, rl.traffic['link']]
             tab.append(tb)
 
@@ -57,19 +96,7 @@ class Archi:
             archi_writer.writerow(['Source', 'Destination', 'Trafic'])
             for tb in tab:
                 archi_writer.writerow(tb)
-class Relation:
-    def __init__(self, source):
-        self.source = source
 
-    def addSource(self, source):
-        self.source = addSource
-
-    def addDest(self, dest):
-        if self.source.archi == dest.archi:
-            self.dest = dest
-
-    def addTraffic(self, traffic):
-        self.traffic = traffic
 class Service:
     def __init__(self, id, type, summary):
         self.id = id
@@ -84,3 +111,58 @@ class Service:
 
     def addArchi(self, archi):
         self.archi = archi
+
+class Persistence:
+    def __init__(self, id, type, summary):
+        self.id = id
+        self.type = type
+        self.summary = summary
+
+    def addType(self, type):
+        self.type = type
+
+    def addSummary(self, summary):
+        self.summary = summary
+
+    def addArchi(self, archi):
+        self.archi = archi
+
+
+class ServiceRelation:
+    def __init__(self, source):
+        self.source = source
+
+    def addSource(self, source):
+        self.source = addSource
+
+    def getSource(self):
+        return self.source
+
+    def addDest(self, dest):
+        if self.source.archi == dest.archi:
+            self.dest = dest
+
+    def getDest(self):
+        return self.dest
+
+    def addTraffic(self, traffic):
+        self.traffic = traffic
+
+class PersistenceRelation:
+    def __init__(self, source):
+        self.source = source
+
+    def addSource(self, source):
+        self.source = addSource
+
+    def getSource(self):
+        return self.source
+
+    def addDest(self, dest):
+        self.dest = dest
+
+    def getDest(self):
+        return self.dest
+
+    def addTraffic(self, traffic):
+        self.traffic = traffic
