@@ -39,7 +39,7 @@ while True:
         print(50 * "*")
         break
 
-    elif option in range(1, 13):
+    elif option in range(1, 14):
 
         project = createArchi(globals()[f"projet{option}"]["name"])
 
@@ -47,9 +47,9 @@ while True:
 
         createServicesRelations(project, globals()[f"projet{option}"]["relations"])
 
-        createPersistences(project, globals()[f"persistence{option}"]["services"])
+        # createPersistences(project, globals()[f"persistence{option}"]["services"])
 
-        createPersistencesRelations(project, globals()[f"persistence{option}"]["relations"])
+        # createPersistencesRelations(project, globals()[f"persistence{option}"]["relations"])
 
         project.toCSV()
 
@@ -92,7 +92,7 @@ while True:
 
             elif option == 4:
 
-                print(DTUmetrics(project))
+                print(calculateMetrics(project))
 
             elif option == 5:
 

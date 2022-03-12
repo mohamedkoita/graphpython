@@ -1,7 +1,30 @@
+#Finalement on va laisser les annotations REST, grpc ou auxtres. On va signaler dans les calculs les
+# Trucs qui correspondent aux services et ceux qui correspondent aux bases de DONNÉES
+# Faire la différence entre ce qui est schema et ce qui est base de données unique, meme si un schema protege les bases de donnees to talk to each other, cela reste un couplage de base de DONNÉES
+# Lorsque les services sont reliés à la base de données on a TABLE qui signifie que le service est relié à une table, SCHEMA qui signifie que le service est relie a un schema dans la BD et FULL_DATABASE lorsque le servicea acces a toutes les données sans restrictions
+# DATABASE
+
+
+#On va calculer en fonction des relations le type de connexion avec la base de données
+
+
 
 ##### ARCHITECTURE DES PROJETS
+#SERVICE, FACADE, DATABASE, MESSAGE_BROKER,
+#Doit-on ajouter les MESSAGE_BROKER ? Oui bien voir les interactions avec les MESSAGE_BROKER
+#RabbitMQ = Message MESSAGE_BROKER
+#Kafka stream processing
+
 projet1 = { "name" : "Teastore",
-"services" : [[0, 'REST', 'WEB UI'], [1, 'REST', 'Registry'], [2, 'REST', 'Authentication'], [3, 'REST', 'ImageProvider'], [4, 'REST', 'Persistence'], [5, 'REST', 'Recommender']],
+"services" : [
+[0, 'FACADE', 'WEB UI'],
+[1, 'SERVICE', 'Registry'],
+[2, 'SERVICE', 'Authentication'],
+[3, 'SERVICE', 'ImageProvider'],
+[4, 'SERVICE', 'Persistence'],
+[5, 'SERVICE', 'Recommender'],
+[6, 'DATABASE', 'MYSQL']],
+
 "relations" : [
 [0, 1, {"link": ["POST /{name}/{location} ", " DELETE /{name}/{location}"]}],
 [0, 2, {"link": ["POST /cart/add/{id} ", " POST /cart/remove/{id} ", " PUT /cart/{id} ", " POST /useractions/login ", " POST /useractions/logout ", " POST /useractions/placeorder ", " POST /useractions/isLoggedIn"] }],
@@ -10,12 +33,41 @@ projet1 = { "name" : "Teastore",
 [0, 5, {"link": ["POST /recommend/{uid}"]}],
 [5, 4, {"link": ["GET /orders ", " GET /ordersitems"]}],
 [2, 4, {"link": ["POST /products ", " POST /orders ", " POST /ordersitems"]}],
-[3, 4, {"link": ["GET /generatedb ", " /GET products ", " GET/categories"]}]
+[3, 4, {"link": ["GET /generatedb ", " /GET products ", " GET/categories"]}],
+[3, 6, {"link": ["FULL_DATABASE MYSQL"]}],
 ] }
 
+
 projet2 = { "name" :  "Sitewhere",
-"services" : [[0, 'gRPC', 'Device Mgmt'], [1, 'gRPC', 'outbounds-connectors'], [2, 'gRPC', 'event-sources'], [3, 'gRPC', 'inbound-processing'], [4, 'gRPC', 'batch-operations'], [5, 'gRPC', 'event-mgmt'], [6, 'gRPC', 'tenant-mgmt'], [7, 'gRPC', 'instance-mgmt'], [8, 'gRPC', 'user-mgmt'], [9, 'gRPC', 'asset-mgmt'], [10, 'gRPC', 'command-delivery'], [11, 'gRPC', 'label-generation'], [12, 'gRPC', 'schedule-mgmt'], [13, 'gRPC', 'device-registration'], [14, 'gRPC', 'device-state'], [15, 'gRPC', 'device-state'], [16, 'gRPC', 'streaming-media'], [17, 'gRPC', 'service-event-search'], [18, 'EVENT_BUS', 'KAFKA'] ],
+"services" : [
+[0, 'SERVICE', 'Device Mgmt'],
+[1, 'SERVICE', 'outbounds-connectors'],
+[2, 'SERVICE', 'event-sources'],
+[3, 'SERVICE', 'inbound-processing'],
+[4, 'SERVICE', 'batch-operations'],
+[5, 'SERVICE', 'event-mgmt'],
+[6, 'SERVICE', 'tenant-mgmt'],
+[7, 'SERVICE', 'instance-mgmt'],
+[8, 'SERVICE', 'user-mgmt'],
+[9, 'SERVICE', 'asset-mgmt'],
+[10, 'SERVICE', 'command-delivery'],
+[11, 'SERVICE', 'label-generation'],
+[12, 'SERVICE', 'schedule-mgmt'],
+[13, 'SERVICE', 'device-registration'],
+[14, 'SERVICE', 'device-state'],
+[15, 'MESSAGE_BROKER', 'RabbitMQ'],
+[16, 'SERVICE', 'streaming-media'],
+[17, 'SERVICE', 'service-event-search'],
+[18, 'EVENT_BUS', 'KAFKA'],
+[19, 'DATABASE', 'MySQL']],
+
+
 "relations" : [
+[0, 19, {"link": ["SCHEMA devicemanagement"]}],
+[4, 19, {"link": ["SCHEMA batchoperations"]}],
+[14, 19, {"link": ["SCHEMA devicestate"]}],
+[12, 19, {"link": ["SCHEMA schedule-management"]}],
+[9, 19, {"link": ["TABLE assets", "TABLE assets_metadata", "TABLE asset_type", "TABLE asset_type_metadata"]}],
 [0, 9, {"link": ["gRPC getAssetByToken()"]}],
 [1, 0, {"link": ["gRPC getArea()", "gRPC getDevice()", "gRPC getDeviceType()", "gRPC getDeviceAssignment()" ]}],
 [2, 0, {"link": ["gRPC getDeviceByToken()", "gRPC getDeviceType()"]}],
@@ -38,46 +90,89 @@ projet2 = { "name" :  "Sitewhere",
 [13, 9, {"link": ["gRPC getAssetByToken()"]}],
 [14, 0, {"link": ["gRPC getDeviceByToken()", "gRPC getDeviceTypeByToken()", "gRPC getDeviceAssignementByToken()", "gRPC getCustomerByToken()", "gRPC getAreaByToken()"]}],
 [14, 9, {"link": ["gRPC getAssetByToken()"]}],
-[0, 18, {"link": ["EVENT_SOURCING"]}],
-[1, 18, {"link": ["EVENT_SOURCING"]}],
-[2, 18, {"link": ["EVENT_SOURCING"]}],
-[3, 18, {"link": ["EVENT_SOURCING"]}],
-[4, 18, {"link": ["EVENT_SOURCING"]}],
-[5, 18, {"link": ["EVENT_SOURCING"]}],
-[7, 18, {"link": ["EVENT_SOURCING"]}],
-[10, 18, {"link": ["EVENT_SOURCING"]}],
-[11, 18, {"link": ["EVENT_SOURCING"]}],
-[12, 18, {"link": ["EVENT_SOURCING"]}],
-[14, 18, {"link": ["EVENT_SOURCING"]}],
-[13, 18, {"link": ["EVENT_SOURCING"]}],
-[15, 18, {"link": ["EVENT_SOURCING"]}],
+[0, 18, {"link": ["Message Producer"]}],
+[1, 18, {"link": ["Message Consumer"]}],
+[1, 15, {"link": ["Message Producer"]}],
+[2, 18, {"link": ["Message Producer"]}],
+[3, 18, {"link": ["Stream Consumer"]}],
+[4, 18, {"link": ["Message Producer", "Message Consumer"]}],
+[5, 18, {"link": ["Message Producer"]}],
+[7, 18, {"link": ["Stream Consumer"]}],
+[10, 18, {"link": ["Message Producer", "Message Consumer"]}],
+[12, 18, {"link": ["Message Consumer"]}],
+[14, 18, {"link": ["Stream Consumer"]}],
+[13, 18, {"link": ["Stream Consumer"]}],
 [16, 18, {"link": ["EVENT_SOURCING"]}],
 [17, 18, {"link": ["EVENT_SOURCING"]}],
+[11, 18, {"link": ["EVENT_SOURCING"]}],
+
 ]}
 
+
+
 projet3 = { "name" :  "Petclinic",
-"services" : [[0, 'REST', 'API GATEWAY'], [1, 'REST', 'Customer-service'], [2, 'REST', 'Vet-service'], [3, 'REST', 'Visit-service']],
+"services" : [
+[0, 'FACADE', 'API GATEWAY'],
+[1, 'SERVICE', 'Customer-service'],
+[2, 'SERVICE', 'Vet-service'],
+[3, 'SERVICE', 'Visit-service'],
+[4, 'DATABASE','MySQL-DB']],
+
 "relations" : [
 [0, 1, {"link": ["GET /owners/{ownerId} "]}],
 [0, 2, {"link": ["GET /vet/vets "] }],
-[0, 3, {"link": ["GET /pets/visits "]}]
+[0, 3, {"link": ["GET /pets/visits "]}],
+[2, 4, {"link": ["TABLE specialities"]}],
+[2, 4, {"link": ["TABLE vets"] }],
+[2, 4, {"link": ["TABLE vet_specialities"]}],
+[3, 4, {"link": ["TABLE visits"]}],
+[1, 4, {"link": ["TABLE owners"] }],
+[1, 4, {"link": ["TABLE pets"]}],
+[1, 4, {"link": ["TABLE types"]}],
 ]}
 
+
+
 projet4 = { "name" :  "eShop",
-"services" : [[0, 'gRPC/Event', 'API GATEWAY'], [1, 'gRPC/Event', 'Ordering'], [2, 'gRPC/Event', 'Basket'], [3, 'gRPC', 'Catalog'], [4, 'Event', 'Payment'], [5, 'EVENT_BUS', 'EVENT BUS']],
+"services" : [
+[0, 'FACADE', 'API GATEWAY'],
+[1, 'SERVICE', 'Ordering'],
+[2, 'SERVICE', 'Basket'],
+[3, 'SERVICE', 'Catalog'],
+[4, 'SERVICE', 'Payment'],
+[5, 'EVENT_BUS', 'EVENT BUS'],
+[6, 'DATABASE', ' OderingdDB - SQL SERVER'],
+[7, 'DATABASE', ' CatalogDB - SQL SERVER'],
+[8, 'DATABASE', ' IdentityDB - SQL SERVER']],
+
 "relations" : [
 [0, 1, {"link": ["gRPC CreateOrderDraftFromBasket() "]}],
 [0, 2, {"link": ["gRPC GetBasketById() ", "gRPC UpdateBasket() "] }],
 [0, 3, {"link": ["gRPC getItemById() ", "gRPC getItemsById() "]}],
-[1, 2, {"link": ["EVENT OrderStartedIntegrationEvent "]}],
-[2, 1, {"link": ["EVENT UserCheckoutAcceptedIntegrationEvent "]}],
-[1, 4, {"link": ["EVENT OrderStatusChangedToStockConfirmedIntegrationEvent "]}],
-[4, 1, {"link": ["EVENT orderPaymentIntegrationEvent "]}],
-[3, 1, {"link": ["EVENT ProductPriceChangedIntegrationEvent "]}],
+[1, 5, {"link": ["publishes EVENT OrderStartedIntegrationEvent ", "publishes EVENT OrderStatusChangedToStockConfirmedIntegrationEvent ", "subscribesTo EVENT UserCheckoutAcceptedIntegrationEvent","subscribesTo EVENT orderPaymentIntegrationEvent "]}],
+[2, 5, {"link": ["publishes EVENT UserCheckoutAcceptedIntegrationEvent "]}],
+[4, 5, {"link": ["publishes EVENT orderPaymentIntegrationEvent ", "subscribesTo EVENT OrderStatusChangedToStockConfirmedIntegrationEvent "]}],
+[3, 5, {"link": ["publishes EVENT ProductPriceChangedIntegrationEvent "]}],
+[1, 6, {"link": ["FULL_DATABASE OderingdDB - SQL SERVER"]}],
+[3, 7, {"link": ["FULL_DATABASE CatalogDB - SQL SERVER"]}],
+[4, 8, {"link": ["FULL_DATABASE IdentityDB - SQL SERVER"]}],
 ]}
 
+
 projet5 = { "name" :  "GoogleCloudPlatform",
-"services" : [[0, 'gRPC/REST', 'FRONTEND'], [1, 'gRPC/REST', 'Cart'], [2, 'gRPC/REST', 'Currency'], [3, 'gRPC', 'Shipping'], [4, 'gRPC', 'Payment'], [5, 'gRPC/REST', 'Checkout'], [6, 'gRPC', 'Recommandation'], [7, 'gRPC', 'Email'], [8, 'gRPC/REST', 'Product Catalog'], [9, 'gRPC', 'Ad']],
+"services" : [
+ [0, 'FACADE', 'FRONTEND'],
+ [1, 'SERVICE', 'Cart'],
+ [2, 'SERVICE', 'Currency'],
+ [3, 'SERVICE', 'Shipping'],
+ [4, 'SERVICE', 'Payment'],
+ [5, 'SERVICE', 'Checkout'],
+ [6, 'SERVICE', 'Recommandation'],
+ [7, 'SERVICE', 'Email'],
+ [8, 'SERVICE', 'Product Catalog'],
+ [9, 'SERVICE', 'Ad'],
+ [10, 'DATABASE', 'REDIS'],
+ [11, 'DATABASE', 'JSON']],
 "relations" : [
 [0, 1, {"link": ["POST /cart ", "POST /cart/empty ", "GET /cart ", "gRPC addItem() ", "gRPC getCart() ", "gRPC emptyCart() "]}],
 [0, 2, {"link": ["POST /setCurrency ", "gRPC getSupportedCurrencies() ", "gRPC convert()"] }],
@@ -93,19 +188,45 @@ projet5 = { "name" :  "GoogleCloudPlatform",
 [5, 7, {"link": ["gRPC sendOrderConfirmation "]}],
 [5, 8, {"link": ["gRPC getProduct "]}],
 [6, 8, {"link": ["gRPC ListProducts "]}],
+[1, 10, {"link": ["FULL_DATABASE REDIS"]}],
+[8, 11, {"link": ["FULL_DATABASE JSON"] }]
 ]}
 
+
+
 projet6 = { "name" :  "Mspnp",
-"services" : [[0, 'REST', 'Workflow service'], [1, 'REST', 'Package Service'], [2, 'REST', 'Drone Scheduler'], [3, 'REST', 'Delivery service'], [4, 'Event', 'Ingestion service'], [5, 'EVENT_BUS', 'AZURE SERVICE BUS']],
+"services" : [
+[0, 'SERVICE', 'Workflow service'],
+[1, 'SERVICE', 'Package Service'],
+[2, 'SERVICE', 'Drone Scheduler'],
+[3, 'SERVICE', 'Delivery service'],
+[4, 'SERVICE', 'Ingestion service'],
+[5, 'DATABASE', 'mongopackageDB'],
+[6, 'DATABASE', 'cosmosDB'],
+[7, 'DATABASE', 'redis'],
+[8, 'EVENT_BUS', 'AZURE SERVICE BUS']],
+
 "relations" : [
 [0, 1, {"link": ["PUT /api/package/{packageId} "]}],
 [0, 2, {"link": ["PUT /api/dronedeliveries/{id} "] }],
 [0, 3, {"link": ["PUT /api/deliveries/{id} "]}],
-[4, 0, {"link": ["EVENT OperationEvent "]}],
+[4, 8, {"link": ["publishes EVENT OperationEvent "]}],
+[8, 0, {"link": ["subscribesTo EVENT OperationEvent "]}],
+[1, 5, {"link": ["FULL_DATABASE mongopackageDB"]}],
+[2, 6, {"link": ["FULL_DATABASE cosmosDB"]}],
+[3, 7, {"link": ["FULL_DATABASE redis"]}],
 ]}
 
+
 projet7 = { "name" :  "Piggymetrics",
-"services" : [[0, 'REST', 'API GATEWAY'], [1, 'REST', 'Authentication'], [2, 'REST', 'Notification'], [3, 'REST', 'Account'], [4, 'REST', 'Statistics']],
+"services" : [
+[0, 'FACADE', 'API GATEWAY'],
+[1, 'SERVICE', 'Authentication'],
+[2, 'SERVICE', 'Notification'],
+[3, 'SERVICE', 'Account'],
+[4, 'SERVICE', 'Statistics'],
+[5, 'DATABASE', 'MongoDB']],
+
 "relations" : [
 [0, 1, {"link": ["GET /uaa"]}],
 [0, 2, {"link": ["GET /notifications "] }],
@@ -113,62 +234,154 @@ projet7 = { "name" :  "Piggymetrics",
 [0, 4, {"link": ["GET /statistics "]}],
 [2, 3, {"link": ["GET /accounts/{accountname} "]}],
 [3, 1, {"link": ["POST /uaa/users "]}],
-[3, 4, {"link": ["PUT /statistics/{accountname} "]}]
+[3, 4, {"link": ["PUT /statistics/{accountname} "]}],
+[1, 5, {"link": ["COLLECTION users"]}],
+[2, 5, {"link": ["COLLECTION recipients"] }],
+[3, 5, {"link": ["COLLECTION accounts"]}],
+[4, 5, {"link": ["COLLECTION datapoints"]}],
+[4, 5, {"link": ["COLLECTION accounts"]}],
 ]}
 
+
 projet8 = { "name" :  "PitStop",
-"services" : [[0, 'REST', 'WebApp'], [1, 'REST', 'Vehicule Mgmt'], [2, 'REST', 'Customer Mgmt'], [3, 'REST', 'Workshop API'], [4, 'REST', 'Invoicing'], [5, 'REST', 'Notifications'], [6, 'REST', 'Workshop Event'], [7, 'REST', 'Auditlog'], [8, 'REST', 'Time']],
+"services" : [
+[0, 'FACADE', 'WebApp'],
+[1, 'SERVICE', 'Vehicule Mgmt'],
+[2, 'SERVICE', 'Customer Mgmt'],
+[3, 'SERVICE', 'Workshop API'],
+[4, 'SERVICE', 'Invoicing'],
+[5, 'SERVICE', 'Notifications'],
+[6, 'SERVICE', 'Workshop Event'],
+[7, 'SERVICE', 'Auditlog'],
+[8, 'SERVICE', 'Time'],
+[9, 'DATABASE', 'Invoicing'],
+[10, 'DATABASE', 'Notifications'],
+[11, 'DATABASE', 'CustomerManagement'],
+[12, 'DATABASE', 'VehicleManagement'],
+[13, 'DATABASE', 'WorkshopManagement'],
+[14, 'DATABASE', 'WorkshopManagementEventStore'],
+[15, 'MESSAGE_BROKER', 'RABBIT MQ']],
+
 "relations" : [
 [0, 1, {"link": ["GET /vehicles ", "POST /vehicles ", "GET /vehicles/{id} "]}],
 [0, 2, {"link": ["GET /customers ", "POST /customers ", "GET /customers/{id} "] }],
 [0, 3, {"link": ["GET /workshopplanning/{planningDate} ", "POST /workshopplanning/{planningDate} ", "POST /workshopplanning/{planningDate}/jobs ", "GET /workshopplanning/{planningDate}/jobs/{jobId} ", "PUT /workshopplanning/{planningDate}/jobs/{jobId}/finish ", "GET /refdata/customers ", "GET /refdata/customers/{id} ", "GET /refdata/vehicles ", "GET /refdata/vehicles/{id} "]}],
-[1, 6, {"link": ["EVENT VehicleRegistered "] }],
-[1, 7, {"link": ["EVENT VehicleRegistered "] }],
-[2, 4, {"link": ["EVENT CustomerRegistered "] }],
-[2, 5, {"link": ["EVENT CustomerRegistered "] }],
-[2, 6, {"link": ["EVENT CustomerRegistered "] }],
-[2, 7, {"link": ["EVENT CustomerRegistered "] }],
-[3, 4, {"link": ["EVENT MaintenanceJobFinished, MaintenanceJobPlanned "] }],
-[3, 5, {"link": ["EVENT MaintenanceJobFinished, MaintenanceJobPlanned "] }],
-[3, 6, {"link": ["EVENT MaintenanceJobFinished, MaintenanceJobPlanned "] }],
-[3, 7, {"link": ["EVENT MaintenanceJobFinished, MaintenanceJobPlanned, WorkshopPlanningCreated "] }],
-[8, 4, {"link": ["EVENT DayHasPassed "] }],
-[8, 5, {"link": ["EVENT DayHasPassed "] }],
-[8, 7, {"link": ["EVENT DayHasPassed "] }]
+[1, 15, {"link": ["publishes EVENT VehicleRegistered "] }],
+[2, 15, {"link": ["publishes EVENT CustomerRegistered ",] }],
+[3, 15, {"link": ["publishes EVENT MaintenanceJobFinished", "publishes MaintenanceJobPlanned ", "publishes WorkshopPlanningCreated"] }],
+[4, 15, {"link": ["subscribesTo EVENT CustomerRegistered", "subscribesTo EVENT MaintenanceJobFinished", "subscribesTo EVENT MaintenanceJobPlanned", "subscribesTo EVENT WorkshopPlanningCreated", "subscribesTo EVENT DayHasPassed"] }],
+[5, 15, {"link": ["subscribesTo EVENT CustomerRegistered", "subscribesTo EVENT MaintenanceJobFinished", "subscribesTo EVENT MaintenanceJobPlanned", "subscribesTo EVENT DayHasPassed"] }],
+[6, 15, {"link": ["subscribesTo EVENT VehicleRegistered ", "subscribesTo EVENT CustomerRegistered", "subscribesTo EVENT MaintenanceJobFinished", "subscribesTo EVENT MaintenanceJobPlanned"] }],
+[7, 15, {"link": ["subscribesTo EVENT VehicleRegistered ", "subscribesTo EVENT CustomerRegistered", "subscribesTo EVENT MaintenanceJobFinished", "subscribesTo EVENT MaintenanceJobPlanned", "subscribesTo EVENT WorkshopPlanningCreated", "subscribesTo EVENT DayHasPassed"] }],
+[8, 15, {"link": ["publishes EVENT DayHasPassed "] }],
+[1, 12, {"link": ["FULL_DATABASE VehicleManagement"]}],
+[2, 11, {"link": ["FULL_DATABASE CustomerManagement"] }],
+[3, 13, {"link": ["FULL_DATABASE WorkshopManagement"]}],
+[4, 9, {"link": ["FULL_DATABASE Invoicing"] }],
+[5, 10, {"link": ["FULL_DATABASE Notifications"] }],
+[6, 13, {"link": ["FULL_DATABASE WorkshopManagement"] }],
+[6, 14, {"link": ["FULL_DATABASE WorkshopManagementEventStore"] }],
 ]}
 
+
+#######
 projet9 = { "name" :  "RobotShop",
-"services" : [[0, 'REST', 'Catalogue'], [1, 'REST', 'Ratings'], [2, 'REST', 'Cart'], [3, 'EVENT', 'Dispatch'], [4, 'REST', 'Shipping'], [5, 'REST', 'Users'], [6, 'REST', 'Payments'], [7,'AMQP', 'RABBIT MQ']],
+"services" : [
+[0, 'SERVICE', 'Catalogue'],
+[1, 'SERVICE', 'Ratings'],
+[2, 'SERVICE', 'Cart'],
+[3, 'SERVICE', 'Dispatch'],
+[4, 'SERVICE', 'Shipping'],
+[5, 'SERVICE', 'Users'],
+[6, 'SERVICE', 'Payments'],
+[7,'MESSAGE_BROKER', 'RABBIT MQ'],
+[8,'DATABASE', 'MongoUsers'],
+[9,'DATABASE', 'MySqlRatings'],
+[10,'DATABASE', 'MongoCatalogue'],
+[11,'DATABASE', 'RedisCart'],
+[12,'DATABASE', 'MysqlShipping']],
+
 "relations" : [
 [1, 0, {"link": ["GET /product/{sku} "]}],
 [2, 0, {"link": ["GET /product "] }],
 [4, 2, {"link": ["POST /shipping/{id} "]}],
 [6, 2, {"link": ["DELETE /cart/{id} "]}],
-[6, 3, {"link": ["EVENT Dispatch "]}],
+[6, 7, {"link": ["publishes EVENT Dispatch "]}],
+[7, 3, {"link": ["subscribesTo EVENT Dispatch "]}],
 [6, 5, {"link": ["GET /check/{id} ", "POST /check/{id} "]}],
+[0, 10, {"link": ["FULL_DATABASE MongoCatalogue"]}],
+[1, 9, {"link": ["FULL_DATABASE MySqlRatings"]}],
+[2, 11, {"link": ["FULL_DATABASE RedisCart"] }],
+[4, 12, {"link": ["FULL_DATABASE MysqlShipping"]}],
+[5, 8, {"link": ["FULL_DATABASE MongoUsers"]}],
+
+
 ]}
 
+
+
 projet10 = { "name" : "Digota" ,
-"services" : [[0, 'gRPC', 'Payment'], [1, 'gRPC', 'Order'], [2, 'gRPC', 'Product'], [3, 'gRPC/REST', 'Sku']],
+"services" : [
+[0, 'SERVICE', 'Payment'],
+[1, 'SERVICE', 'Order'],
+[2, 'SERVICE', 'Product'],
+[3, 'SERVICE', 'Sku'],
+[4, 'DATABASE', 'mongoDB']],
+
 "relations" : [
 [1, 0, {"link": ["gRPC NewCharge ", "gRPC RefundCharge "]}],
 [1, 3, {"link": ["gRPC Get ", "gRPC GetWithInventoryLock "] }],
 [2, 3, {"link": ["gRPC ProductData "]}],
-[3, 2, {"link": ["gRPC Get "]}]
+[3, 2, {"link": ["gRPC Get "]}],
+[0, 4, {"link": ["COLLECTION charge"]}],
+[2, 4, {"link": ["COLLECTION product"]}],
+[1, 4, {"link": ["COLLECTION order"] }],
+[3, 4, {"link": ["COLLECTION sku"]}]
 ]}
 
+
+
 projet11 = { "name" : "PartsUnlimited" ,
-"services" : [[0, 'REST', 'WEB UI'], [1, 'REST', 'Quote'], [2, 'REST', 'Catalogue'], [3, 'REST', 'Order'], [4, 'REST', 'Dealer'], [5, 'REST', 'Shipment']],
+"services" : [
+[0, 'FACADE', 'WEB UI'],
+[1, 'SERVICE', 'Quote'],
+[2, 'SERVICE', 'Catalogue'],
+[3, 'SERVICE', 'Order'],
+[4, 'SERVICE', 'Dealer'],
+[5, 'SERVICE', 'Shipment'],
+[6, 'DATABASE', 'MongoDB'],
+
+],
 "relations" : [
 [0, 1, {"link": ["GET /quote ", "POST /quote ", "GET /quote/{quoteId} ", "DELETE /quote/{quoteId} ", "PUT /quote/{quoteId} ", "GET /quote/bydealer/{dealername} "]}],
 [0, 2, {"link": ["GET /catalogue", "POST /catalogue ", "GET /catalogue/{skuNumber} ", "DELETE /catalogue/{skuNumber} ", "PUT /catalogue/{skuNumber} "] }],
 [0, 3, {"link": ["GET /orders ", "POST /orders ", "GET /orders/{orderId} ", "PUT /orders/{orderId} ", "DELETE /orders/{orderId} ", "PUT /orders/{orderId}/status ", "POST /orders/{orderId}/events "]}],
 [0, 4, {"link": ["GET /dealer ", "POST /dealer ", "GET /dealer/{dealerName} ", "DELETE /dealer/{dealerName} ", "PUT /dealer/{dealerName} "]}],
-[0, 5, {"link": ["GET /shipments ", "POST /shipments ", "GET /shipments/{id} ", "DELETE /shipments/{id} ", "PUT /shipments/{id} ", "GET /shipments/{id}/events "]}]
+[0, 5, {"link": ["GET /shipments ", "POST /shipments ", "GET /shipments/{id} ", "DELETE /shipments/{id} ", "PUT /shipments/{id} ", "GET /shipments/{id}/events "]}],
+[4, 6, {"link": ["COLLECTION dealer"]}],
+[2, 6, {"link": ["COLLECTION catalogue"]}],
+[1, 6, {"link": ["COLLECTION quote"]}],
+[3, 6, {"link": ["COLLECTION order"]}],
+[5, 6, {"link": ["COLLECTION shipment"]}]
 ]}
 
+
 projet12 = { "name" : "Blueprint" ,
-"services" : [[0, 'REST', 'API GATEWAY'], [1, 'REST', 'Inventory'], [2, 'REST', 'Account'], [3, 'REST', 'Product'], [4, 'REST', 'Shopping-Cart'], [5, 'REST', 'Order'], [6, 'REST', 'Payment'], [7, 'REST', 'Store'], [8, 'EVENT_BUS', 'EVENT BUS']],
+"services" : [
+[0, 'FACADE', 'API GATEWAY'],
+[1, 'SERVICE', 'Inventory'],
+[2, 'SERVICE', 'Account'],
+[3, 'SERVICE', 'Product'],
+[4, 'SERVICE', 'Shopping-Cart'],
+[5, 'SERVICE', 'Order'],
+[6, 'SERVICE', 'Payment'],
+[7, 'SERVICE', 'Store'],
+[8, 'EVENT_BUS', 'EVENT BUS'],
+[9, 'DATABASE', 'Redis'],
+[10, 'DATABASE', 'MongoDB'],
+[11, 'DATABASE', 'MySQL'],
+],
+
 "relations" : [
 [0, 1, {"link": ["GET /api/inventory/{productId} "]}],
 [0, 2, {"link": ["GET /uaa ", "POST /logout "] }],
@@ -176,13 +389,36 @@ projet12 = { "name" : "Blueprint" ,
 [0, 4, {"link": ["GET /api/cart/cart ", "POST /api/cart/events ", "POST /api/cart/checkout "]}],
 [0, 5, {"link": ["GET /api/order/orders/{orderId} ", "GET /api/order/user/{userId}/orders "]}],
 [4, 1, {"link": ["GET /inventory/{productId} "]}],
-[4, 5, {"link": ["EVENT SHOPPING_TO_ORDER "]}],
-[4, 6, {"link": ["EVENT SHOPPING_TO_PAYMENT "]}],
 [5, 1, {"link": ["PUT /inventory/{productId}/decrease?n={amount} "]}],
+[4, 8, {"link": ["publishes EVENT SHOPPING_TO_ORDER", "publishes EVENT SHOPPING_TO_PAYMENT "]}],
+[5, 8, {"link": ["subscribesTo EVENT SHOPPING_TO_ORDER "]}],
+[6, 8, {"link": ["subscribesTo EVENT SHOPPING_TO_PAYMENT "]}],
+[1, 9, {"link": ["FULL_DATABASE Redis"]}],
+[7, 10, {"link": ["FULL_DATABASE MongoDB"]}],
+[2, 11, {"link": ["TABLE user_account"] }],
+[3, 11, {"link": ["TABLE product"]}],
+[4, 11, {"link": ["TABLE cart_event"]}],
+[5, 11, {"link": ["TABLE order"]}],
+[6, 11, {"link": ["TABLE payment"]}],
 ]}
 
+
+
 projet13 = { "name" : "MicroservicesDemo" ,
-"services" : [[0, 'REST', 'Front End'], [1, 'REST', 'Payment'], [2, 'REST', 'Catalogue'], [3, 'REST', 'Orders'], [4, 'REST', 'Users'], [5, 'REST', 'Carts'], [6, 'REST', 'Shipping'], [7, 'EVENT', 'Queue-Master'], [8, 'EVENT_BUS', 'RABBIT MQ']],
+"services" : [
+[0, 'FACADE', 'Front End'],
+[1, 'SERVICE', 'Payment'],
+[2, 'SERVICE', 'Catalogue'],
+[3, 'SERVICE', 'Orders'],
+[4, 'SERVICE', 'Users'],
+[5, 'SERVICE', 'Carts'],
+[6, 'SERVICE', 'Shipping'],
+[7, 'SERVICE', 'Queue-Master'],
+[8, 'MESSAGE_BROKER', 'RABBIT MQ'],
+[9,  'DATABASE', 'MySQL socksDB'],
+[10, 'DATABASE', 'MongoDB usersdb'],
+[11, 'DATABASE', 'MongoDB ordersdb'],
+[12, 'DATABASE', 'MongoDB cartsdb']],
 "relations" : [
 [0, 2, {"link": ["GET /catalogue ", "GET /catalogue/images ", "GET /tags "]}],
 [0, 3, {"link": ["GET /orders/* ", "POST /orders "] }],
@@ -190,139 +426,12 @@ projet13 = { "name" : "MicroservicesDemo" ,
 [0, 5, {"link": ["GET /cart ", "DELETE /cart ", "POST /cart ", "POST /cart/update ", "DELETE /cart/{id} "]}],
 [3, 1, {"link": ["POST /paymentAuth "]}],
 [3, 6, {"link": ["POST /shipping "]}],
-[6, 7, {"link": ["EVENT shipping-task "]}],
-]}
 
+[6, 8, {"link": ["publishes EVENT shipping-task "]}],
+[7, 8, {"link": ["subscribesTo EVENT shipping-task "]}],
 
-##### PERSISTENCE DES DONNÉES
-
-
-persistence1 = { "name" : "Teastore",
-"services" : [[0, 'DATABASE', 'MYSQL'], [1, 'REST', 'Authentication'], [2, 'REST', 'ImageProvider'], [3, 'REST', 'Persistence'], [4, 'REST', 'Recommender']],
-"relations" : [
-[3, 0, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[1, 3, {"link": ["POST /products ", " POST /orders ", " POST /ordersitems"] }],
-[2, 3, {"link": ["GET /generatedb ", " /GET products ", " GET/categories"]}],
-[4, 3, {"link": [" POST /orders ", " POST /ordersitems"] }]]
- }
-
-persistence2 = { "name" :  "Sitewhere",
-"services" : [[0, 'gRPC', 'Device Mgmt'], [1, 'gRPC', 'outbounds-connectors'], [2, 'gRPC', 'event-sources'], [3, 'gRPC', 'inbound-processing'], [4, 'gRPC', 'batch-operations'], [5, 'gRPC', 'event-mgmt'], [6, 'gRPC', 'tenant-mgmt'], [7, 'gRPC', 'instance-mgmt'], [8, 'gRPC', 'schedule-mgmt'], [9, 'gRPC', 'user-mgmt'], [10, 'gRPC', 'asset-mgmt'], [11, 'gRPC', 'command-delivery'], [12, 'gRPC', 'label-generation'], [13, 'gRPC', 'schedule-mgmt'], [14, 'gRPC', 'device-registration'], [15, 'gRPC', 'device-state'], [16, 'SCHEMA', 'devicemanagement'], [17, 'TABLES', 'assets, assets_metadata, asset_type, asset_type_metadata'], [18, 'SCHEMA', 'batchoperations'], [19, 'SCHEMA', 'devicestate'], [20, 'SCHEMA', 'schedule-management'], [21, 'EVENT_BUS', 'KAFKA'], [22, 'gRPC', 'streaming-media'], [23, 'gRPC', 'service-event-search'] ],
-"relations" : [
-[0, 16, {"link": ["SCHEMA_PER_SERVICE"]}],
-[4, 18, {"link": ["SCHEMA_PER_SERVICE"]}],
-[10, 17, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[15, 19, {"link": ["SCHEMA_PER_SERVICE"]}],
-[13, 20, {"link": ["SCHEMA_PER_SERVICE"]}],
-]}
-
-persistence3 = { "name" :  "Petclinic",
-"services" : [[0, 'TABLE', 'visits'], [1, 'REST', 'Customer-service'], [2, 'REST', 'Vet-service'], [3, 'REST', 'Visit-service'], [4, 'TABLE','specialities'], [5, 'TABLE', 'vets'], [6, 'TABLE', 'vet_specialities'], [7, 'TABLE', 'owners'], [8, 'TABLE', 'pets'], [9, 'TABLE', 'types']],
-"relations" : [
-[2, 4, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[2, 5, {"link": ["PRIVATE_TABLES_BY_SERVICE"] }],
-[2, 6, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[3, 0, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[1, 7, {"link": ["PRIVATE_TABLES_BY_SERVICE"] }],
-[1, 8, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[1, 9, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[0, 8, {"link": ["INTERSERVICE FOREIGN KEY"]}],
-]}
-
-persistence4 = { "name" :  "eShop",
-"services" : [[0, 'EVENT_BUS', 'EVENT BUS'], [1, 'gRPC/Event', 'Ordering'], [2, 'gRPC/Event', 'Basket'], [3, 'gRPC', 'Catalog'], [4, 'Event', 'Identity'], [5, 'DATABASE', ' OderingdDB - SQL SERVER'], [6, 'DATABASE', ' CatalogDB - SQL SERVER'],[7, 'DATABASE', ' IdentityDB - SQL SERVER']],
-"relations" : [
-[1, 5, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[3, 6, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[4, 7, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-]}
-
-persistence5 = { "name" :  "GoogleCloudPlatform",
-"services" : [[0, 'gRPC/REST', 'FRONTEND'], [1, 'gRPC/REST', 'Cart'], [2, 'gRPC/REST', 'Currency'], [3, 'gRPC', 'Shipping'], [4, 'gRPC', 'Payment'], [5, 'gRPC/REST', 'Checkout'], [6, 'gRPC', 'Recommandation'], [7, 'gRPC', 'Email'], [8, 'gRPC/REST', 'Product Catalog'], [9, 'gRPC', 'Ad'], [10, 'DATABASE', 'REDIS'], [11, 'DATABASE', 'JSON']],
-"relations" : [
-[1, 10, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[8, 11, {"link": ["DATABASE_SERVER_BY_SERVICE"] }]
-]}
-
-persistence6 = { "name" :  "Mspnp",
-"services" : [[0, 'REST', 'Workflow service'], [1, 'REST', 'Package Service'], [2, 'REST', 'Drone Scheduler'], [3, 'REST', 'Delivery service'], [4, 'Event', 'Ingestion service'], [5, 'DATABASE', 'mongopackageDB'], [6, 'DATABASE', 'cosmosDB'], [7, 'DATABASE', 'redis'], [8, 'EVENT_BUS', 'AZURE SERVICE BUS']],
-"relations" : [
-[1, 5, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[2, 6, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[3, 7, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-]}
-
-persistence7 = { "name" :  "Piggymetrics",
-"services" : [[0, 'COLLECTION', 'datapoints COLLECTION'], [1, 'REST', 'Authentication'], [2, 'REST', 'Notification'], [3, 'REST', 'Account'], [4, 'REST', 'Statistics'], [5, 'COLLECTION', 'users COLLECTION'], [6, 'COLLECTION', 'recipients COLLECTION'], [7, 'COLLECTION', 'accounts COLLECTION']],
-"relations" : [
-[1, 5, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[2, 6, {"link": ["DATABASE_SERVER_BY_SERVICE"] }],
-[3, 7, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[4, 0, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[4, 7, {"link": ["SHARED_DATABASE"]}],
-
-]}
-
-persistence8 = { "name" :  "PitStop",
-"services" : [[0, 'AMQP', 'RABBIT MQ'], [1, 'REST', 'Vehicule Mgmt'], [2, 'REST', 'Customer Mgmt'], [3, 'REST', 'Workshop API'], [4, 'REST', 'Invoicing'], [5, 'REST', 'Notifications'], [6, 'REST', 'Workshop Event'], [7, 'REST', 'Auditlog'], [8, 'REST', 'Time'], [9, 'DATABASE', 'Invoicing'], [10, 'DATABASE', 'Notifications'], [11, 'DATABASE', 'CustomerManagement'], [12, 'DATABASE', 'VehicleManagement'], [13, 'DATABASE', 'WorkshopManagement'], [14, 'DATABASE', 'WorkshopManagementEventStore']],
-"relations" : [
-[1, 12, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[2, 11, {"link": ["DATABASE_SERVER_BY_SERVICE"] }],
-[3, 13, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[4, 9, {"link": ["DATABASE_SERVER_BY_SERVICE"] }],
-[5, 10, {"link": ["DATABASE_SERVER_BY_SERVICE"] }],
-[6, 13, {"link": ["DATABASE_SERVER_BY_SERVICE"] }],
-[6, 14, {"link": ["DATABASE_SERVER_BY_SERVICE"] }],
-
-]}
-
-persistence9 = { "name" :  "RobotShop",
-"services" : [[0, 'REST', 'Catalogue'], [1, 'REST', 'Ratings'], [2, 'REST', 'Cart'], [3, 'EVENT', 'Dispatch'], [4, 'REST', 'Shipping'], [5, 'REST', 'Users'], [6, 'REST', 'Payments'], [7,'AMQP', 'RABBIT MQ'], [8,'DATABASE', 'MongoUsers'], [9,'DATABASE', 'MySqlRatings'], [10,'DATABASE', 'MongoCatalogue'], [11,'DATABASE', 'RedisCart'], [12,'DATABASE', 'MysqlShipping']],
-"relations" : [
-[0, 10, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[1, 9, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[2, 11, {"link": ["DATABASE_SERVER_BY_SERVICE"] }],
-[4, 12, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[5, 8, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-]}
-
-persistence10 = { "name" : "Digota" ,
-"services" : [[0, 'gRPC', 'Payment'], [1, 'gRPC', 'Order'], [2, 'gRPC', 'Product'], [3, 'gRPC/REST', 'Sku'], [4, 'COLLECTION', 'charge - mongoDB'], [5, 'COLLECTION', 'product - mongoDB'], [6, 'COLLECTION', 'order - mongoDB'], [7, 'COLLECTION', 'sku - mongoDB']],
-"relations" : [
-[0, 4, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[1, 6, {"link": ["PRIVATE_TABLES_BY_SERVICE"] }],
-[2, 5, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[3, 7, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}]
-]}
-
-persistence11 = { "name" : "PartsUnlimited" ,
-"services" : [[0, 'REST', 'Quote'], [1, 'REST', 'Catalogue'], [2, 'REST', 'Order'], [3, 'REST', 'Dealer'], [4, 'REST', 'Shipment'], [5, 'COLLECTION', 'dealer COLLECTION'], [6, 'COLLECTION', 'catalogue COLLECTION'], [7, 'COLLECTION', 'quote COLLECTION'], [8, 'COLLECTION', 'order COLLECTION'], [9, 'COLLECTION', 'shipment COLLECTION']],
-"relations" : [
-[0, 7, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[1, 6, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[2, 8, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[3, 5, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[4, 9, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}]
-]}
-
-persistence12 = { "name" : "Blueprint" ,
-"services" : [[0, 'EVENT_BUS', 'EVENT BUS'], [1, 'REST', 'Inventory'], [2, 'REST', 'Account'], [3, 'REST', 'Product'], [4, 'REST', 'Shopping-Cart'], [5, 'REST', 'Order'], [6, 'REST', 'Payment'], [7, 'REST', 'Store'], [8, 'DATABASE', 'redis'], [9, 'DATABASE', 'mongo'], [10, 'TABLE', 'user_account TABLE - mysql'], [11, 'TABLE', 'product TABLE - mysql'], [12, 'TABLE', 'order TABLE - mysql'], [13, 'TABLE', 'cart_event TABLE - mysql'], [14, 'TABLE', 'payment TABLE - mysql']],
-"relations" : [
-[1, 8, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[2, 10, {"link": ["PRIVATE_TABLES_BY_SERVICE"] }],
-[3, 11, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[4, 13, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[5, 12, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[6, 14, {"link": ["PRIVATE_TABLES_BY_SERVICE"]}],
-[7, 9, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-]}
-
-persistence13 = { "name" : "MicroservicesDemo" ,
-"services" : [[0, 'EVENT_BUS', 'RABBIT MQ'], [1, 'REST', 'Catalogue'], [2, 'REST', 'Orders'], [3, 'REST', 'Users'], [4, 'REST', 'Carts'], [5, 'REST', 'Shipping'], [6, 'EVENT', 'Queue-Master'], [7, 'DATABASE', 'MySQL socksDB'], [8, 'DATABASE', 'mongodb - usersdb'], [9, 'DATABASE', 'mongodb - ordersdb'], [10, 'DATABASE', 'mongodb - cartsdb']],
-"relations" : [
-[1, 7, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[2, 9, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-[3, 8, {"link": ["DATABASE_SERVER_BY_SERVICE"] }],
-[4, 10, {"link": ["DATABASE_SERVER_BY_SERVICE"]}],
-
+[2, 9, {"link": ["FULL_DATABASE MySQL socksDB"]}],
+[3, 11, {"link": ["FULL_DATABASE MongoDB ordersdb"]}],
+[4, 10, {"link": ["FULL_DATABASE MongoDB usersdb"] }],
+[5, 12, {"link": ["FULL_DATABASE MongoDB cartsdb"]}],
 ]}
