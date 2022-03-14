@@ -34,7 +34,7 @@ projet1 = { "name" : "Teastore",
 [5, 4, {"link": ["GET /orders ", " GET /ordersitems"]}],
 [2, 4, {"link": ["POST /products ", " POST /orders ", " POST /ordersitems"]}],
 [3, 4, {"link": ["GET /generatedb ", " /GET products ", " GET/categories"]}],
-[3, 6, {"link": ["FULL_DATABASE MYSQL"]}],
+[4, 6, {"link": ["FULL_DATABASE MYSQL"]}],
 ] }
 
 
@@ -135,7 +135,7 @@ projet3 = { "name" :  "Petclinic",
 
 projet4 = { "name" :  "eShop",
 "services" : [
-[0, 'FACADE', 'API GATEWAY'],
+[0, 'FACADE', 'WEB_BFF'],
 [1, 'SERVICE', 'Ordering'],
 [2, 'SERVICE', 'Basket'],
 [3, 'SERVICE', 'Catalog'],
@@ -143,12 +143,18 @@ projet4 = { "name" :  "eShop",
 [5, 'EVENT_BUS', 'EVENT BUS'],
 [6, 'DATABASE', ' OderingdDB - SQL SERVER'],
 [7, 'DATABASE', ' CatalogDB - SQL SERVER'],
-[8, 'DATABASE', ' IdentityDB - SQL SERVER']],
+[8, 'DATABASE', ' IdentityDB - SQL SERVER'],
+[9, 'FACADE', 'MOBILE_BFF'],
+],
+
 
 "relations" : [
-[0, 1, {"link": ["gRPC CreateOrderDraftFromBasket() "]}],
-[0, 2, {"link": ["gRPC GetBasketById() ", "gRPC UpdateBasket() "] }],
-[0, 3, {"link": ["gRPC getItemById() ", "gRPC getItemsById() "]}],
+[0, 1, {"link": ["gRPC ASYNC CreateOrderDraftFromBasketAsync() "]}],
+[0, 2, {"link": ["gRPC ASYNC GetBasketByIdAsync() ", "gRPC ASYNC UpdateBasketAsync() "] }],
+[0, 3, {"link": ["gRPC ASYNC getItemByIdAsync() ", "gRPC ASYNC getItemsByIdAsync() "]}],
+[9, 1, {"link": ["gRPC ASYNC CreateOrderDraftFromBasketAsync() "]}],
+[9, 2, {"link": ["gRPC ASYNC GetBasketByIdAsync() ", "gRPC ASYNC UpdateBasketAsync() "] }],
+[9, 3, {"link": ["gRPC ASYNC getItemByIdAsync() ", "gRPC ASYNC getItemsByIdAsync() "]}],
 [1, 5, {"link": ["publishes EVENT OrderStartedIntegrationEvent ", "publishes EVENT OrderStatusChangedToStockConfirmedIntegrationEvent ", "subscribesTo EVENT UserCheckoutAcceptedIntegrationEvent","subscribesTo EVENT orderPaymentIntegrationEvent "]}],
 [2, 5, {"link": ["publishes EVENT UserCheckoutAcceptedIntegrationEvent "]}],
 [4, 5, {"link": ["publishes EVENT orderPaymentIntegrationEvent ", "subscribesTo EVENT OrderStatusChangedToStockConfirmedIntegrationEvent "]}],

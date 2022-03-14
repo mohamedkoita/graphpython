@@ -132,11 +132,17 @@ def drawGraph(architecture, purpose):
 
     color_map = []
 
-    storage = ['DATABASE', 'SCHEMA', 'TABLE', 'TABLES', 'EVENT_BUS', 'AMQP', 'COLLECTION']
+    storage = ['DATABASE', 'SCHEMA', 'TABLE', 'TABLES', 'COLLECTION']
+    facade = ['FACADE']
+    event = [ 'EVENT_BUS', 'MESSAGE_BROKER']
 
     for nb in range(G.number_of_nodes()):
         if G.nodes[nb]['purpose'] in storage :
             color_map.append('green')
+        elif G.nodes[nb]['purpose'] in facade :
+            color_map.append('red')
+        elif G.nodes[nb]['purpose'] in event :
+            color_map.append('brown')
         else:
             color_map.append('#1f78b4')
 
@@ -159,17 +165,15 @@ def AllInCsvFile():
 
         createServicesRelations(project, globals()[f"projet{option}"]["relations"])
 
-        createPersistences(project, globals()[f"persistence{option}"]["services"])
-
-        createPersistencesRelations(project, globals()[f"persistence{option}"]["relations"])
+        metrics = calculateMetrics(project)
 
 
         #tb Nom du projet, DTU, SDBI, SIC, DSS, TSS, CDD
-        tb = [project.getName(), DTUmetrics(project), SDBImetrics(project), SICmetrics(project), DSSmetrics(project), TSSmetrics(project), CDDmetrics(project)]
+        tb = [project.getName(), metrics[0]['dtu'] , metrics[1]['sdbi'], metrics[2]['sic'], metrics[3]['acu'], metrics[4]['dss'], metrics[5]['tss'], metrics[6]['cdd']]
         tab.append(tb)
 
     with open('Metrics.csv', mode='w+') as metrics_file:
         metrics_writer = csv.writer(metrics_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        metrics_writer.writerow(['Nom du projet', 'DTU', 'SDBI', 'SIC', 'DSS', 'TSS', 'CDD'])
+        metrics_writer.writerow(['Nom du projet', 'DTU', 'SDBI', 'SIC', 'ACU', 'DSS', 'TSS', 'CDD'])
         for tb in tab:
             metrics_writer.writerow(tb)
