@@ -184,7 +184,7 @@ def calculateMetrics(architecture):
         cyclic_dependencies_detection = 0
 
     #dtu, sdbi, sic, acu, dss, tss, cdd
-    return [{'dtu' : db_type_utilization}, {'sdbi' : shared_db_interactions}, {'sic' : service_interaction_with_inter_comp}, {'acu' : asynchronous_service_utilization}, {'dss' : directly_shared_services}, {'tss' : trans_shared_services}, {'cdd' : cyclic_dependencies_detection}]
+    return [{'dtu' : db_type_utilization}, {'sdbi' : shared_db_interactions}, {'sic' : service_interaction_with_inter_comp}, {'acu' : asynchronous_service_utilization}, {'dss' : directly_shared_services}, {'tss' : trans_shared_services}, {'cdd' : cyclic_dependencies_detection}, {'gr' : G}]
 
 
 #On va faire une boucle sur chaque service, et pour chaque service, on va compter le nombre de fois ou il appatait comme premier parametre dans les tableaux des relations

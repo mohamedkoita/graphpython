@@ -47,9 +47,7 @@ while True:
 
         createServicesRelations(project, globals()[f"projet{option}"]["relations"])
 
-        # createPersistences(project, globals()[f"persistence{option}"]["services"])
-
-        # createPersistencesRelations(project, globals()[f"persistence{option}"]["relations"])
+        metrics = calculateMetrics(project)
 
         project.toCSV()
 
@@ -57,7 +55,7 @@ while True:
             print(20 * " ", "Choisir le graphe a dessiner", 10 * " ")
             print(30 * " ", "", 15 * " ")
             print(8 * " ", "1 - Architecture du système")
-            print(8 * " ", "2 - Modèle de persistance des données")
+            print(8 * " ", "2 - Asynchronous Communication Utilization - Utilisation de Communication Asynchrone")
             print(8 * " ", "3 - Afficher le fanIn et le fanOut des services")
             print(8 * " ", "4 - Data Type Utilization - Utilisation du type de données")
             print(8 * " ", "5 - Shared Database Interaction - Interactions avec base de données partagée")
@@ -80,11 +78,11 @@ while True:
 
             elif option == 1:
 
-                drawGraph(project, 1)
+                drawGraph(metrics[7]['gr'])
 
             elif option == 2:
 
-                drawGraph(project, 2)
+                print(metrics[3]['acu'])
 
             elif option == 3:
 
@@ -92,28 +90,27 @@ while True:
 
             elif option == 4:
 
-                print(calculateMetrics(project))
+                print(metrics[0]['dtu'])
 
             elif option == 5:
 
-                print(SDBImetrics(project))
+                print(metrics[1]['sdbi'])
 
             elif option == 6:
 
-                print(SICmetrics(project))
+                print(metrics[2]['sic'])
 
             elif option == 7:
 
-                print(DSSmetrics(project))
+                print(metrics[4]['dss'])
 
             elif option == 8:
 
-                print(TSSmetrics(project))
+                print(metrics[5]['tss'])
 
             elif option == 9:
 
-                G = createGraph(project, 1)
-                print(CDDmetrics(G))
+                print(metrics[6]['cdd'])
 
             else:
                 # selection ivalide, ressaisir
