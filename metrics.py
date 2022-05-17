@@ -14,12 +14,16 @@ def calculateMetrics(architecture):
     components = Gr[2]
     total_service_to_db_links = []
     nb_total_service_to_db_links = 0
+    nb_shared_db_interconnexions_total = 0
+    nb_shared_db_interconnexions_sc = 0
     nb_shared_db_interconnexions = 0
     nb_total_service_interconnections = 0
     nb_service_to_facade_link = 0
     facade_links = []
     ##Peut etre problematique si aucune facade
     facade_ids = []
+    ##On va aussi récupérer les message broker id et event bus id
+    mb_ev_ids = []
     service_interaction_with_inter_comp = 0
     total_services = []
     nb_total_services = 0
@@ -34,18 +38,41 @@ def calculateMetrics(architecture):
     #Calcul du nombre de services interconnexions avec base de données partagée
     for rel in total_service_to_db_links:
         if 'FULL_DATABASE' in rel and total_service_to_db_links.count(rel) > 1:
+            nb_shared_db_interconnexions_sc += 1
             nb_shared_db_interconnexions += 1
+            print(rel)
+
+        elif 'SCHEMA' in rel:
+            nb_shared_db_interconnexions += 1
+
         elif 'SCHEMA' in rel and total_service_to_db_links.count(rel) > 1:
+            nb_shared_db_interconnexions_sc += 1
+
+        #On doit trouver le moyen de vérifier que toutes les collections sont issues de la méme aource de données pour confirmer la théorie
+        #Important de mettre la notion de shared Databases with shared content and shared database without shared content
+        elif 'COLLECTION' in rel:
             nb_shared_db_interconnexions += 1
+            # print(rel)
+
         elif 'COLLECTION' in rel and total_service_to_db_links.count(rel) > 1:
-            nb_shared_db_interconnexions += 1
+            nb_shared_db_interconnexions_sc += 1
+
         elif 'TABLE' in rel:
             nb_shared_db_interconnexions += 1
+
+        elif 'TABLE' in rel and total_service_to_db_links.count(rel) > 1:
+            nb_shared_db_interconnexions_sc += 1
+
 
     # Calculs du nombre de connecteurs facade à service
     for comp in components:
         if comp[1] == "FACADE":
             facade_ids.append(comp[0])
+
+    # Calculs du nombre de eventbus et messagebroker
+    for comp in components:
+        if comp[1] == "MESSAGE_BROKER" or comp[1] == "EVENT_BUS":
+            mb_ev_ids.append(comp[0])
 
 
     for fac_id in facade_ids:
@@ -109,14 +136,14 @@ def calculateMetrics(architecture):
     if nb_total_service_interconnections == 0:
         asynchronous_service_utilization = 0
     else:
-        asynchronous_service_utilization = nb_shared_db_interconnexions / nb_total_service_interconnections
+        asynchronous_service_utilization = nb_shared_db_interconnexions_sc / nb_total_service_interconnections
 
 
     #Calcul du DSS
     #get service to services relations without service to db and service to facade
     sv_to_sv = []
     for val in relations:
-        if 'FULL_DATABASE' not in val[2]['link'] and 'SCHEMA' not in val[2]['link'] and 'COLLECTION' not in val[2]['link'] and 'TABLE' not in val[2]['link'] and val[0] not in facade_ids :
+        if 'FULL_DATABASE' not in val[2]['link'] and 'SCHEMA' not in val[2]['link'] and 'COLLECTION' not in val[2]['link'] and 'TABLE' not in val[2]['link'] and val[0] not in facade_ids and val[0] not in mb_ev_ids :
             sv_to_sv.append(val)
 
     ##Test
@@ -184,7 +211,7 @@ def calculateMetrics(architecture):
         cyclic_dependencies_detection = 0
 
     #dtu, sdbi, sic, acu, dss, tss, cdd
-    return [{'dtu' : db_type_utilization}, {'sdbi' : shared_db_interactions}, {'sic' : service_interaction_with_inter_comp}, {'acu' : asynchronous_service_utilization}, {'dss' : directly_shared_services}, {'tss' : trans_shared_services}, {'cdd' : cyclic_dependencies_detection}, {'gr' : G}]
+    return [{'dtu' : db_type_utilization}, {'sdbi' : shared_db_interactions}, {'sic' : service_interaction_with_inter_comp}, {'acu' : asynchronous_service_utilization}, {'dss' : directly_shared_services}, {'tss' : trans_shared_services}, {'cdd' : cyclic_dependencies_detection}, {'tot' : nb_total_service_interconnections}, {'shr' : nb_shared_db_interconnexions}, {'TSTDL' : total_service_to_db_links} , {'gr' : G}]
 
 
 #On va faire une boucle sur chaque service, et pour chaque service, on va compter le nombre de fois ou il appatait comme premier parametre dans les tableaux des relations

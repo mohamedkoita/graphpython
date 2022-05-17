@@ -78,7 +78,7 @@ while True:
 
             elif option == 1:
 
-                drawGraph(metrics[7]['gr'])
+                drawGraph(metrics[10]['gr'])
 
             elif option == 2:
 
@@ -110,7 +110,7 @@ while True:
 
             elif option == 9:
 
-                print(metrics[6]['cdd'])
+                print(metrics[9]['TSTDL'])
 
             else:
                 # selection ivalide, ressaisir

@@ -138,7 +138,7 @@ def AllInCsvFile():
     #récupérer tous les projets et les ajouter un a un dans le CSV des métriques
     tab = []
 
-    for option in range(1, 13):
+    for option in range(1, 14):
 
         project = createArchi(globals()[f"projet{option}"]["name"])
 
@@ -150,11 +150,11 @@ def AllInCsvFile():
 
 
         #tb Nom du projet, DTU, SDBI, SIC, DSS, TSS, CDD
-        tb = [project.getName(), metrics[0]['dtu'] , metrics[1]['sdbi'], metrics[2]['sic'], metrics[3]['acu'], metrics[4]['dss'], metrics[5]['tss'], metrics[6]['cdd']]
+        tb = [project.getName(), metrics[0]['dtu'] , metrics[1]['sdbi'], metrics[2]['sic'], metrics[3]['acu'], metrics[4]['dss'], metrics[5]['tss'], metrics[6]['cdd'], metrics[7]['tot'], metrics[8]['shr']]
         tab.append(tb)
 
     with open('Metrics.csv', mode='w+') as metrics_file:
         metrics_writer = csv.writer(metrics_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        metrics_writer.writerow(['Nom du projet', 'DTU', 'SDBI', 'SIC', 'ACU', 'DSS', 'TSS', 'CDD'])
+        metrics_writer.writerow(['Nom du projet', 'DTU', 'SDBI', 'SIC', 'ACU', 'DSS', 'TSS', 'CDD', 'TOT_INTERC', 'TOT_SHAREDATA'])
         for tb in tab:
             metrics_writer.writerow(tb)
